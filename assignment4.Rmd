@@ -113,7 +113,7 @@ table(df$weekend)
 Use the select function to deselect the column `totalTestsViral` from the data.
 ```{r}
 
-df %>% select(-totalTestsViral)
+head(df) %>% select(-totalTestsViral) 
 
 ```
 
@@ -301,7 +301,7 @@ head(df3)
 - select
 ```{r}
 
-df3 %>% select(Survived,Pclass,PassengerId)
+head(df3) %>% select(Survived,Pclass,PassengerId)
 
 
 ```
@@ -309,7 +309,7 @@ df3 %>% select(Survived,Pclass,PassengerId)
 - filter
 ```{r}
 
-df3 %>% filter(Survived==1)
+head(df3,20) %>% filter(Survived==1)
 
 
 ```
@@ -317,7 +317,7 @@ df3 %>% filter(Survived==1)
 - mutate
 ```{r}
 
-df3 %>% mutate(age_minus_fare = Age - Fare)
+head(df3) %>% mutate(age_minus_fare = Age - Fare)
 
 ```
 
@@ -333,7 +333,7 @@ df3 %>%
 - arrange
 ```{r}
 
-df3 %>% arrange(-SibSp)
+head(df3,50) %>% arrange(-SibSp)
 
 
 ```
