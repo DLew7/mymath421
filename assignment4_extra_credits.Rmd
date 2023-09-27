@@ -31,7 +31,7 @@ This assignment works with the [IMDB Top 1000 data](../data/imdb_top_1000.csv). 
 
 1. List all the names of the columns of the data
 ```{r}
-library(tidyverse)
+  library(tidyverse)
 setwd("C:/Users/student/Downloads")
 df =  read_csv('imdb_top_1000.csv')
 names(df)

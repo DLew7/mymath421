@@ -6,6 +6,7 @@
 - [Assignment 4](assignment4.html)
 - [Assignment 4 extra credit](assignment4_extra_credits.html)
 - [Assignment 5](assignment5.html)
+- [Assignment 5 extra credit](assignment5_extra_credits.html)
 
 
 
