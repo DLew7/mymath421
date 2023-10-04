@@ -8,6 +8,8 @@
 - [Assignment 5](assignment5.html)
 - [Assignment 5 extra credit](assignment5_extra_credits.html)
 - [Assignment 6](assignment6.html)
+- [GGplot](abc.png)
+- [Assignment 7](assignment7.html)
 
 
 
