@@ -41,7 +41,10 @@ head(df)
 ```{r}
 
 df %>% ggplot()+
-  geom_point(aes(x=in_apple_charts, y=in_spotify_charts))+facet_wrap(~mode)
+  geom_point(aes(x=in_apple_charts, y=in_spotify_charts))+facet_wrap(~mode)+
+  labs(
+       title = 'Number of Apple vs Spotify Charts by Mode', 
+       caption = 'Major songs tend to have a similar proportion of apple to spotify, while Minor songs are not as correlated')
 
 ## songs on apple vs spotify charts by mode
 ```
@@ -50,7 +53,9 @@ df %>% ggplot()+
 ```{r}
 
 df %>% ggplot()+
-  geom_point(aes(x=in_apple_charts, y=in_spotify_charts))+facet_wrap(~mode+key)
+  geom_point(aes(x=in_apple_charts, y=in_spotify_charts))+facet_wrap(~mode+key)+labs(
+       title = 'Spotify vs Apple charts by Mode and Key', 
+       caption = 'Minor F key and Major C# key have many songs high on the apple charts ')
 
 ## songs on apple vs spotify charts by mode and number of artists per song
 ```
@@ -60,7 +65,9 @@ df %>% ggplot()+
 
 df %>% ggplot()+ 
   geom_bar(mapping=aes(x=mode, fill=key), 
-           position = 'dodge')
+           position = 'dodge')+ labs(
+       title = 'Number of songs by Mode and Key', 
+       caption = 'Major in general has more songs, except for D# and E Major songs')
 
 
 ```
@@ -70,7 +77,9 @@ df %>% ggplot()+
 
 df %>% ggplot()+ 
   geom_bar(mapping=aes(x=mode, fill=key), 
-           position = 'fill')
+           position = 'fill')+ labs(
+       title = 'Percentage of songs by Mode and Key', 
+       caption = 'Major songs have a lot of C#, D, G and G#, while Minor songs are much more evenly spread')
 
 
 ```
@@ -81,7 +90,9 @@ df %>% ggplot()+
 df %>% group_by(key) %>% 
   summarise(average_apple=mean(in_apple_playlists, na.rm=TRUE)) %>% 
   ggplot()+ 
-  geom_col(mapping=aes(x=key, y=average_apple))
+  geom_col(mapping=aes(x=key, y=average_apple))+ labs(
+       title = 'Number of songs on apple playlists by Key', 
+       caption = 'C# songs have the highest number of songs on apple playlists')
 
 
 ```
@@ -91,7 +102,9 @@ df %>% group_by(key) %>%
 
 df %>% ggplot()+ 
   geom_bar(mapping=aes(x=mode, fill=key), 
-           position = 'fill')+theme_dark()
+           position = 'fill')+theme_dark()+ labs(
+       title = 'Percentage of songs by Mode and Key', 
+       caption = 'Minor songs are much more evenly spread out among the different keys than for Mode')
 
 ```
 
@@ -101,7 +114,9 @@ df %>% ggplot()+
 df %>% 
     filter(artist_count>3) %>% 
     ggplot()+
-    geom_bar(mapping=aes(x=mode, fill=key))
+    geom_bar(mapping=aes(x=mode, fill=key))+ labs(
+       title = 'Number of songs by Mode and Key which have 3 or more artists collaborating on the song', 
+       caption = 'The number of Major songs is smaller than Minor, and G# makes up the largest percentage of Minor songs')
 
 
 ```
@@ -113,7 +128,9 @@ df %>%
   group_by(mode, key) %>% 
   summarise(mean_artists = artist_count) %>% 
   ggplot()+
-  geom_col(aes(x=mode, y=mean_artists, fill=key), position = 'dodge')
+  geom_col(aes(x=mode, y=mean_artists, fill=key), position = 'dodge')+ labs(
+       title = 'Average number of artists by Mode and Key', 
+       caption = 'The highest average number of artists for Minor songs is for G key songs')
 
 
 ```
@@ -155,7 +172,9 @@ df %>%
   ggplot()+
   geom_point(mapping = aes(x = date, 
                                     y = total_vaccinations, 
-                                    color = vaccine))
+                                    color = vaccine))+ labs(
+       title = 'Total Vaccines in the US by date', 
+       caption = 'The number of vaccines increase greatly, then level off starting around 2022')
 ```
 
 Do the follows. 
@@ -168,7 +187,9 @@ df %>%
   ggplot()+
   geom_point(mapping = aes(x = date, 
                                     y = total_vaccinations, 
-                                    color = vaccine))
+                                    color = vaccine)) + labs(
+       title = 'Total Vaccines in Argentina in 2022 by Date', 
+       caption = 'The most common vaccine throughout is Sinopharm/Beijing')
 
 
 ```
@@ -181,7 +202,9 @@ df %>%
   ggplot()+
   geom_line(mapping = aes(x = date, 
                                     y = total_vaccinations, 
-                                    color = vaccine))
+                                    color = vaccine)) + labs(
+       title = 'Total Vaccines in Argentina in 2022 by Date', 
+       caption = 'The most common vaccine throughout is Sinopharm/Beijing')
 
 
 ```
@@ -200,7 +223,9 @@ d1 %>%
   ggplot()+
   geom_point(mapping=aes(x=date, 
                          y=total_vac2, 
-                         color=location))
+                         color=location)) + labs(
+       title = 'Total Vaccines in the US and EU by Date', 
+       caption = 'The EU greatly outnumbers the US starting midway through 2021')
 ```
 
 Notice that the above codes could be piped in one 
@@ -213,7 +238,9 @@ df %>%
   ggplot()+
   geom_point(mapping=aes(x=date, 
                          y=total_vac2, 
-                         color=location))
+                         color=location))+ labs(
+       title = 'Total Vaccines in the US and EU by Date', 
+       caption = 'The EU greatly outnumbers the US starting midway through 2021')
 ```
 
 
@@ -228,7 +255,9 @@ df %>%
   ggplot()+
   geom_point(mapping=aes(x=date, 
                          y=total_vac2, 
-                         color=location))
+                         color=location)) + labs(
+       title = 'Total Vaccines in Asia by Date', 
+       caption = 'Japan outnumbers all other countries by a lot starting summer 2021')
 
 
 ```
@@ -243,7 +272,9 @@ df %>%
   ggplot()+
   geom_point(mapping=aes(x=date, 
                          y=total_vac2, 
-                         color=location))
+                         color=location)) + labs(
+       title = 'Total Vaccines in South America by Date', 
+       caption = 'Argentina starts outnumbering the other countries starting in July 2021')
 
 
 ```
