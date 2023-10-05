@@ -1,0 +1,154 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 7 - Extra Credits: Practice dplyr and ggplot2"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](assignment7_extra_credits.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+-------
+
+1. Import the data at https://bryantstats.github.io/math421/data/ds_salaries.csv
+
+    The data description can be found at https://www.kaggle.com/datasets/saurabhshahane/data-science-jobs-salaries
+```{r}
+
+library(tidyverse)
+setwd("C:/Users/student/Downloads")
+df =  read_csv('ds_salaries.csv')
+head(df)
+
+
+```
+
+2. Is there any column that contains NAs?
+```{r}
+
+colSums(is.na(df))
+
+
+```
+
+3. What is the most frequent job title in the data?  
+```{r}
+
+df %>% count(job_title) %>% 
+  arrange(-n)
+  
+
+
+```
+
+4. Find the average salary data of the three most frequent job titles in the data. 
+```{r}
+
+df %>% 
+  filter(job_title=='Data Scientist'|job_title=='Data Engineer'|job_title=='Data Analyst') %>%
+  group_by(job_title) %>% 
+  summarise(mean(salary))
+  
+
+
+```
+
+5. What is the job title that have the highest average salary?
+```{r}
+
+df %>% 
+  group_by(job_title) %>% 
+  summarise(meansal = mean(salary)) %>% 
+  arrange(-meansal)
+
+
+```
+
+6. Which country gives the highest salary on average? 
+```{r}
+
+df %>% 
+  group_by(company_location) %>% 
+  summarise(meansal = mean(salary)) %>% 
+  arrange(-meansal)
+
+
+```
+
+7. Plot five meaningful plots. All plots should have title, caption, and appropriate labels.
+```{r}
+
+colSums(is.na(df))
+df %>% 
+  group_by(employment_type, work_year) %>% 
+  summarise(meanSal = mean(salary_in_usd)) %>% 
+  ggplot()+
+  geom_col(aes(x=work_year, y=meanSal, fill=employment_type), position = 'dodge')+ labs(
+       title = 'Mean salary by work year and employment type', 
+       caption = 'Employment type CT went way up in mean salary in 2021, but then decreased very much the next year')
+
+
+```
+```{r}
+
+df %>% 
+    filter(company_size=='L') %>% 
+    ggplot()+
+    geom_bar(mapping=aes(x=experience_level))+ labs(
+       title = 'Number of jobs by experience level that are large companies', 
+       caption = 'The experience levels MI and SE and the most common in large companies')
+
+
+```
+```{r}
+
+df %>% ggplot()+ 
+  geom_bar(mapping=aes(x=work_year, fill=experience_level), 
+           position = 'fill')+theme_dark()+ labs(
+       title = 'Percentage of jobs in each year that are each experience level ', 
+       caption = 'In 2022, the experience level SE went way up and was the highest percentage job that year')
+
+
+```
+
+```{r}
+
+
+df %>% ggplot()+ 
+  geom_bar(mapping=aes(x=company_size, fill=salary_currency), 
+           position = 'dodge')+ labs(
+       title = 'Number of jobs by company size and salary_currency', 
+       caption = 'USD is the most common currency in each size of company')
+
+
+```
+```{r}
+df %>% 
+  group_by(remote_ratio, company_size) %>% 
+  summarise(meanSal = mean(salary_in_usd)) %>% 
+  ggplot()+
+  geom_col(aes(x=remote_ratio, y=meanSal, fill=company_size), position = 'dodge')+ labs(
+       title = 'Mean salary by remote work ratio and company size', 
+       caption = '100% remote salary is consistently the highest, and for 50% remote, the salary is higher for medium-sized companies than large ones')
+
+
+```
+
