@@ -1,0 +1,840 @@
+---
+title: "Midterm"
+output: 
+  html_document:
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+------------------------------------------------------------------------
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Instruction
+
+The midterm has two components: the Rmarkdown notebook (html) and the presentation. We will do the presentation in class. Post both the notebook and the presentation on your Github page.
+
+**The notebook:** The notebook should be created using `rmarkdown` or Quarto (like other assignments). The notebook should have a title.
+
+**The Presentation:** Present your results in 5-10 minutes. To make the presentation using Rmarkdown, do the follows:
+
+```         
+- In Rstudio -> File -> New File -> R markdown
+
+- In the left panel, click to Presentation -> Click OK
+
+- Now you have an Rmarkdown that can be knitted to be a html presentation 
+```
+
+-   You can also use the Rmd templates of the class slides.
+
+-   You can also use Quarto to create the presentation: *In Rstudio -\> File -\> New File -\> Quarto Presentation...*
+
+-   You do not need to rerun all the codes for the presentation. For example, to show the model comparison, you just need to show the image of the model comparison instead of running all the models again.
+
+-   To inset an image in a slide, use `![](image.png)`
+
+-   To scale images, you can use `![](image.png){width="60%"}` or follow these below instructions.
+
+    -   <https://bookdown.org/yihui/rmarkdown-cookbook/figure-size.html>
+
+    -   <http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/>
+
+-   To turn off message and warning of a code cell, use: `{r, message=FALSE, warning=FALSE}` for the cell.
+
+**What to present**:
+
+-   Present Part 2 - Visualization
+
+-   Present Question Question 4, 5 and 6 in Part 3.
+
+-   Present any errors/challenges you run into and how you fix/overcome them.
+
+**Data:**
+
+The data for the mid-term project is the Rhode Island Department of Health Hospital Discharge Data. Each row of the data presents a patient.
+
+Link: <https://drive.google.com/open?id=15QNBf6YYKocK2nNIfpKDer58kQnCPNZJ>
+
+**Notice**
+
+-   Since this is a large dataset, you could try to run the codes on the smaller dataset, which is a portion of the original dataset before running the codes on the original data. To create a random subset of the data you could use
+
+```{r}
+# find the number of rows of the data
+
+library(lubridate)
+library(gganimate)
+library(ggplot2)
+library(tidyverse)
+library(knitr)
+#df <- read_csv('https://drive.google.com/open?id=15QNBf6YYKocK2nNIfpKDer58kQnCPNZJ')
+library(haven)
+setwd("C:/Users/student/Downloads")
+df <- read_csv('421midterm.csv')
+#df <- read_sas('hdd0318cy.sas7bdat')
+n = nrow(df)
+n
+# subset 1000 rows of the data
+#df1 = df[sample(1:n, 1000), ]
+
+df$sex <- case_when(
+  df$sex == 2 ~ 'Female',
+  TRUE ~ 'Male')
+
+df$raceethn = as.character(df$raceethn) 
+df$provider = as.character(df$provider) 
+df$admtype = as.character(df$admtype) 
+
+
+```
+
+------------------------------------------------------------------------
+
+## I. Data Wranggling
+
+1.  Download the data file `hdd0318cy.sas7bdat`.
+
+2.  Use `read_sas` in library `haven` to read the data.
+
+```{r}
+
+#library(haven)
+#setwd("C:/Users/student/Downloads")
+#df <- read_sas('hdd0318cy.sas7bdat')
+#n = nrow(df)
+#n
+#df = df[sample(1:n, 1000), ]
+
+```
+
+3.  Filter the data to have only patients of the year 2018 (`yod=18`)
+
+```{r}
+
+df = df %>% filter(yod==18)
+
+```
+
+4.  Select to work with only following variables:
+
+```{r, eval=FALSE}
+ 
+df = df %>% select("yod", "payfix","pay_ub92","age",  
+                      "sex","raceethn","provider","moa", 
+                      "yoa","mod","admtype", "asource" , 
+                      "preopday" ,"los", "service" , "icu","ccu",    
+                      "dispub92", "payer"  ,"drg","trandb", 
+                      "randbg","randbs","orr", "anes","seq",   
+                      "lab","dtest", "ther","blood","phar", 
+                      "other","patcon","bwght","total","tot" ,  
+                      "ecodub92","b_wt","pt_state","diag_adm","ancilar" ,
+                      "campus","er_fee","er_chrg","er_mode","obs_chrg",
+                      "obs_hour","psycchrg","nicu_day")
+```
+
+*Notice*: You may want to save the current data to your computer for easy access later. To save the data file use `write_csv(df, 'midterm.csv')`, for example.
+
+```{r}
+
+#write_csv(df, '421midterm.csv')
+
+
+```
+
+5.  What are variables that have missing values?
+
+```{r}
+
+colSums(is.na(df))
+
+
+
+```
+
+6.  Remove all variables with missing values.
+
+```{r}
+
+df = df %>% select(-payfix,-pay_ub92, -age, -raceethn, -moa, -mod, -admtype, -asource, -bwght, -preopday, los, -service, -icu, -ccu, -dispub92, -drg, -bwght, -b_wt, -diag_adm, -ancilar, -campus, -er_fee, -er_chrg, -obs_chrg, -psycchrg, -ecodub92, -pt_state, -er_mode, -obs_hour, -nicu_day)
+head(df)
+```
+
+7.  Refer to the data description in the file `HDD2015-18cy6-20-19.docx`, which variable recording the month of admission?, which variable recording the month of discharge?
+
+```{r}
+
+
+## moa is month of admission, mod is month of discharge
+
+```
+
+8.  Which month admitted the most number of patients? Which month admitted the most number of male patients?
+
+```{r}
+
+setwd("C:/Users/student/Downloads")
+df <- read_csv('421midterm.csv')
+df$sex <- case_when(
+  df$sex == 2 ~ 'Female',
+  TRUE ~ 'Male')
+
+df$raceethn = as.character(df$raceethn) 
+df$provider = as.character(df$provider) 
+df$admtype = as.character(df$admtype)
+
+
+
+
+#df <- read_sas('hdd0318cy.sas7bdat')
+df %>% 
+  group_by(moa) %>% 
+  count(moa) %>% 
+  summarise(n = sum(n)) %>%
+  arrange(-n)
+```
+
+
+```{r}
+df %>% 
+  filter(sex=="Male") %>% 
+  group_by(moa) %>% 
+  count(moa) %>% 
+  summarise(n = sum(n)) %>%
+  arrange(-n)
+
+
+```
+
+9.  Which month has the most number of teenage female patients?
+
+```{r}
+
+
+df %>% 
+  filter(sex=="Female") %>% 
+  filter(age>12, age<20) %>% 
+  group_by(moa) %>% 
+  count(moa) %>% 
+  summarise(n = sum(n)) %>%
+  arrange(-n)
+
+
+```
+
+10. Which provider has the most number of female patients in October?
+
+```{r}
+
+df %>% 
+  filter(sex=="Female") %>% 
+  filter(moa==10) %>% 
+  group_by(provider) %>% 
+  count(moa) %>% 
+  summarise(n = sum(n)) %>%
+  arrange(-n)
+
+
+```
+
+11. Are female patients older than male patients, on average?
+
+```{r}
+library(haven)
+#setwd("C:/Users/student/Downloads")
+#df <- read_csv('421midterm.csv')
+
+df %>% 
+  filter(sex=="Male"|sex=="Female") %>% 
+  group_by(sex) %>% 
+  summarise(avgage = mean(age, na.rm = TRUE))
+
+#yes
+
+```
+
+12. Calculate the average age of patients by months. Which month has the oldest patients on average age?
+
+```{r}
+
+df %>% 
+  filter(moa!=0) %>% 
+  group_by(moa) %>% 
+  summarise(avgage = mean(age, na.rm = TRUE)) %>% 
+    arrange(-avgage)
+
+
+```
+
+13. What is the name of the provider that has the highest total charge?
+
+```{r}
+
+df %>% 
+  group_by(provider) %>% 
+  summarise(totcharge = max(tot, na.rm = TRUE)) %>% 
+  arrange(-totcharge)
+
+# Rhode Island Hospital
+
+```
+
+14. What is the name of the provider that has the least total charge for teenage male on average?
+
+```{r}
+
+df %>% 
+  filter(sex=="Male") %>% 
+  filter(age>12, age<20) %>% 
+  group_by(provider) %>% 
+  summarise(totcharge = mean(tot, na.rm = TRUE)) %>% 
+  arrange(totcharge)
+
+## Newport
+
+```
+
+15. Create a season (Spring, Summer, Fall, Winter) variable. Calculate the length of stays by season. Which season has the longest length of stays on average?
+
+```{r}
+
+
+df$season <- case_when(
+  df$moa < 6 ~ 'Spring',
+  df$moa < 9 ~ 'Summer',
+  df$moa < 12 ~ 'Fall',
+  TRUE ~ 'Winter')
+table(df$season)
+
+
+df %>% 
+  group_by(season) %>% 
+  summarise(lenofstay = mean(los, na.rm = TRUE)) %>% 
+  arrange(-lenofstay)
+
+
+```
+
+16. On average, how much a 20 year-old male get charged for staying 1 day in the Fall season?
+
+```{r}
+
+df %>% 
+  filter(sex=="Male") %>% 
+  filter(age==20) %>% 
+  filter(los==1) %>% 
+  filter(season=="Fall") %>% 
+  summarise(totcharge = mean(tot, na.rm = TRUE))
+
+
+```
+
+17. Write a paragraph to summarize the section and give your comments on the results. You could do some other calculations to support your points.
+
+```{r}
+
+#It makes sense that the most common months of the year for patient visits are March and January, because people usually get sick in the winter months compared to in the summer for example. Also, for the length of stay, the highest average length of stay is in the winter compared to any other month, meaning that not only are there more reasons to go to the doctor in the winter, the diseases and sicknesses are worse in the winter.
+
+
+```
+
+------------------------------------------------------------------------
+
+## II. Data Visualization
+
+Continue with the data from part I.
+
+1.  Provides at least 10 meaningful plots. Comments on the plots. All plots should have title, caption, appropriate labels on x and y-axis
+
+```{r}
+
+
+df %>% 
+  filter(age!=0) %>% 
+  ggplot()+
+  geom_density(mapping = aes(x = age))+labs(title="Percentage of Vists by Age", caption = "The most common age to have vists at a doctor is around 80 years old.")
+
+
+```
+
+
+```{r}
+
+df %>% 
+  filter(sex=="Male"|sex=="Female") %>% 
+  ggplot()+
+  geom_boxplot(mapping = aes(x = age, y = sex))+labs(title="Age Range by Sex", caption="The average age is higher for males visting the doctor, and there is a larger quartile range for females")
+
+
+```
+
+
+```{r}
+
+df %>% 
+  filter(sex=="Male"|sex=="Female") %>% 
+  ggplot()+
+  geom_bar(mapping=aes(x=service, fill=sex), position = 'fill')+labs(title="Percentage of Males and Females per Service Type", caption="There are 4 services that are 100% female, which have to do with giving birth. Highest percentage of males is urology")
+
+
+```
+
+
+```{r}
+
+df$agegroup <- case_when(
+  df$age < 20 ~ 'young',
+  df$moa < 60 ~ 'med',
+  TRUE ~ 'old')
+
+
+df %>% ggplot()+ 
+  geom_bar(mapping=aes(x=agegroup, fill=admtype), 
+           position = 'dodge')+labs(title="Admtype by Age Group", caption="Most common admtype overall is an emergency, while electric is not common for younger patients")
+
+```
+
+```{r}
+
+df %>% group_by(provider) %>% 
+  summarise(avgage=mean(age, na.rm=TRUE)) %>% 
+  ggplot()+ 
+  geom_col(mapping=aes(x=provider, y=avgage))+labs(title="Average Age by Provider",caption="Lowest Average age by far is for Women and Infants and Bradley. Highest is Rehab of RI")
+
+
+```
+
+
+
+
+```{r}
+
+df %>% group_by(payer) %>% 
+  filter(service==40) %>% 
+  summarise(avgtot=mean(tot, na.rm=TRUE)) %>% 
+
+  ggplot()+ 
+  geom_col(mapping=aes(x=payer, y=avgtot))+labs(title="Average Total Charge by Payer",caption="Lowest average total charge is Other sources of payment. Highest is Medicaid.")
+
+
+```
+
+
+
+```{r}
+df %>% 
+    filter(admtype==1|admtype==2|admtype==3|admtype==4) %>% 
+    ggplot()+
+    geom_bar(mapping=aes(x=campus, fill=admtype))+labs(title="Count of Admtype by Campus", caption="Hospitals with only one location have more of a variety of admtypes, and less of a percentage of emergencies.")
+
+
+```
+
+```{r}
+
+df %>% 
+  filter(sex=="Male"|sex=="Female") %>% 
+  ggplot()+
+  geom_point(aes(x=age, y=los))+facet_wrap(~sex)+labs(title="Length of Stay by Age, and by Sex", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+
+
+```
+
+```{r}
+
+df %>% 
+  filter(yod==17) %>% 
+  filter(admtype==4) %>% 
+  ggplot()+ 
+  geom_bar(mapping=aes(x=moa, fill=admtype), 
+           position = 'dodge')+labs(title="Count of Births by Month in 2017", caption="The number of births steadily increases from January until August, and then declines until the end of the year.")
+
+
+```
+
+
+
+```{r}
+
+
+df %>% 
+  filter(payer==0|payer==1|payer=="G") %>% 
+  filter(yod==18|yod==17|yod==16|yod==15) %>% 
+  ggplot()+ 
+  geom_bar(mapping=aes(x=yod, fill=payer), 
+           position = 'dodge')+labs(title="Count of patients by Payer per Year", caption="Patients with Medicare steadily decline from 2015-2018, while Rite Care users slightly increase.")
+
+
+```
+
+
+2.  Make an animation plot.
+
+```{r}
+
+library(lubridate)
+d1 <- df %>% group_by(yoa, provider) %>% summarise(sum = sum(tot))
+d2 <- d1 %>% group_by(yoa) %>% mutate(rank=rank(-sum)) 
+d3 <- d2 %>% filter(rank <= 10)
+a1 <- d3 %>% ggplot(aes(x=rank, y=sum, group=provider, fill=provider, label=provider)) + geom_col()+
+    geom_text(aes(y = sum, label = provider), hjust = 1.4)+ 
+    coord_flip(clip = "off", expand = FALSE) +scale_x_reverse()+
+    labs(title = 'yoa {closest_state}', x='', y='Total Number of Charge', fill='provider')+
+    theme(plot.title = element_text(hjust = 1, size = 22),
+          axis.ticks.y = element_blank(),
+          axis.text.y  = element_blank()) + 
+    transition_states(yoa)+
+    ease_aes("cubic-in-out")
+animate(a1, nframes = 400)
+
+
+```
+
+3.  Write a paragraph to summarize the section and give your comments on the results.
+
+
+Most of the results here were not too surprising in my opinion, like the fact that, older people are more likely to have emergency visits and longer stays at the doctor or hospital unfortunately. Something I do think is interesting however, is that the average age of females is probably skewed because of the number of visits they have to give birth, or birth-realted visits. How the data is now, males have a slightly higher average age of patients, and if there wasn't this birth skew, I think females might have a higher average age. So, this is not good for males in general that they probably go to the doctor more at younger ages. Also, one of the charts did show that males have a higher number of hospital stays over 500 days under the age of 40. 
+
+
+
+------------------------------------------------------------------------
+
+## III. Predictive Models
+
+Continue with the data from part I. Make sure you do not have any missing values in the data. Use the follows as the target and input variables:
+
+*Target Variable*: Create the target variable taking value of
+
+-   `low` if the total charge of a patient (`tot`) is smaller than the median of the total charge, and
+
+-   `high` otherwise.
+
+*Input Variables*:
+
+-   "age","sex","raceethn","provider","moa","mod","admtype","campus", 'los'
+
+------------------------------------------------------------------------
+```{r}
+head(df)
+```
+
+1.  Use `filter` function to filter out rows where `raceethn==''` or `admtype==''`. Make sure all the categorical variables are factor, numeric variables are numeric. Set Training : Testing Split = 10 : 90
+
+```{r}
+
+setwd("C:/Users/student/Downloads")
+df <- read_csv('421midterm.csv')
+df$sex <- case_when(
+  df$sex == 2 ~ 'Female',
+  TRUE ~ 'Male')
+
+df$raceethn = as.character(df$raceethn) 
+df$provider = as.character(df$provider) 
+df$admtype = as.character(df$admtype)
+
+
+
+df$totcharge <- case_when(
+  df$tot < median(df$tot) ~ 'low',
+  TRUE ~ 'high')
+
+
+df <- df %>% filter(raceethn!="")
+df <- df %>% filter(admtype!="")
+df <- df %>% rename(target=totcharge)
+df <- df %>% select(age, sex, provider, moa, mod, admtype, campus, los, target) 
+df = drop_na(df)
+df <- df %>% 
+  mutate(target = as.factor(target),
+         provider = as.factor(provider),
+         sex = as.factor(sex),
+         admtype = as.factor(admtype),
+         campus = as.factor(campus)
+         )
+
+library(caret)
+set.seed(100)
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+head(df)
+
+```
+
+2.  Train a decision tree using `rpart`. Plot the decision tree. Plot the variable importance ranked by the tree.
+
+```{r}
+
+library(rpart) #load the rpart package
+# Create a tree
+tree_model <- rpart(target ~ ., data = df_train,
+                 control = rpart.control(maxdepth = 3))
+head(df)
+
+
+#predict on testing data
+pred <- predict(tree_model, df_test, type = "class")
+#Evaluate the predictions
+cm <- confusionMatrix(data = pred, reference = factor(df_test$target), positive = "high")
+cm$overall[1]
+
+```
+
+```{r}
+
+#install.packages("rattle")
+library(rattle)
+fancyRpartPlot(tree_model)
+
+
+```
+
+```{r}
+
+barplot(tree_model$variable.importance)
+
+
+
+```
+
+3.  Using caret for this question. Set `Training Control` to be: Use Cross-Validation of 5 folds across all models. Train & tune at least 2 different models (i.e. two different values for `method=` in the train function of caret). Plot the hyper-parameter tuning plots for each model.
+
+```{r}
+
+library(caret)
+set.seed(100)
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+tuneGrid = expand.grid(mtry=2:4)
+                       
+rf <- train(target~., data=df_train, 
+                    method = "rf", 
+                    ntree = 10,
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+
+plot(rf)
+
+```
+
+```{r}
+
+library(caret)
+set.seed(100)
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+#tuneGrid = expand.grid(mtry=2:4)
+                       
+rpart <- train(target~., data=df_train, 
+                    method = "rpart", 
+                    trControl = trControl)
+                   # tuneGrid = tuneGrid)
+
+plot(rpart)
+
+
+```
+
+4.  Plot the comparison of the models in 3.
+
+```{r}
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+rf <- train(target~., data=df_train, 
+                                method = "rf", 
+                                ntree=10,
+                                trControl = trControl)
+rpart <- train(target~., data=df_train, 
+                    method = "rpart", 
+                                trControl = trControl)
+
+results <- resamples(list('rf' = rf,
+                          'rpart' = rpart
+                          ))
+bwplot(results)
+
+
+```
+
+5.  What is your final selection for the model? Test the accuracy of your final model on the test data.
+
+```{r}
+pred <- predict(rf, df_test)
+#Evaluate the predictions
+cm <- confusionMatrix(data = pred, reference = factor(df_test$target), positive = "high")
+cm$overall[1]
+
+
+```
+
+6.  Create another `target` variable (binary), decide the input variables and redo 1 to 5.
+
+```{r}
+
+
+setwd("C:/Users/student/Downloads")
+df <- read_csv('421midterm.csv')
+df$sex <- case_when(
+  df$sex == 2 ~ 'Female',
+  TRUE ~ 'Male')
+
+df$raceethn = as.character(df$raceethn) 
+df$provider = as.character(df$provider) 
+df$admtype = as.character(df$admtype)
+#df <- read_sas('hdd0318cy.sas7bdat')
+#n = nrow(df)
+#n
+#df = df[sample(1:n, 1000), ]
+
+
+df$ages <- case_when(
+  df$age < 50 ~ 'low',
+  TRUE ~ 'high')
+
+
+
+df <- df %>% rename(target=ages)
+df <- df %>% select(sex, provider, moa, mod, admtype, campus, los, target, tot, drg, asource) 
+df = drop_na(df)
+df <- df %>% 
+  mutate(target = as.factor(target),
+         asource = as.factor(asource),
+         provider = as.factor(provider),
+         sex = as.factor(sex),
+         admtype = as.factor(admtype),
+         campus = as.factor(campus)
+         )
+
+#install.packages("caret")
+library(caret)
+set.seed(100)
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+```
+
+```{r}
+
+library(rpart) #load the rpart package
+# Create a tree
+tree_model <- rpart(target ~ ., data = df_train,
+                 control = rpart.control(maxdepth = 3))
+library(rattle)
+fancyRpartPlot(tree_model)
+
+```
+
+```{r}
+
+barplot(tree_model$variable.importance)
+
+```
+
+```{r}
+
+library(caret)
+set.seed(100)
+# Handle missing values
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+tuneGrid = expand.grid(mtry=2:4)
+                       
+rf <- train(target~., data=df_train, 
+                    method = "rf", 
+                    ntree=10,
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+
+plot(rf)
+
+
+```
+
+```{r}
+
+library(caret)
+set.seed(100)
+splitIndex <- createDataPartition(df$target, p = .1, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+#tuneGrid = expand.grid(mtry=2:4)
+                       
+rpart <- train(target~., data=df_train, 
+                    method = "rpart", 
+                    trControl = trControl)
+                    #tuneGrid = tuneGrid)
+
+plot(rpart)
+
+```
+
+```{r}
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+rpart <- train(target~., data=df_train, 
+                                method = "rpart", 
+                                trControl = trControl)
+rf <- train(target~., data=df_train, 
+                    method = "rf", 
+                    ntree=10,
+                                trControl = trControl)
+
+results <- resamples(list('rpart' = rpart,
+                          'rf' = rf
+                          ))
+bwplot(results)
+
+
+```
+
+```{r}
+
+pred <- predict(rf, df_test)
+#Evaluate the predictions
+cm <- confusionMatrix(data = pred, reference = factor(df_test$target), positive = "high")
+cm$overall[1]
+
+
+```
+
+7.  Write a paragraph to summarize the section and give your comments on the results.
+
+
+I thought it was interesting that for predicting the total charge amount of patients, the main factors were if the length of stay was over or under 4.5 days, and if the age of the patient was over or under 35 years old. I think the age part of this is that if you are older than 39, you get more health benefits than younger people, and more insurance coverage as you get older. 
+
+For the mode comparisons, the rf had a significantly higher accuracy score than the rpart model and was able to get a 79% accuracy score. 
+
+Next, for predicting the age of patients to either be over or under 50, the most important variable for predicting this was the provider that the patient had. This is probably because certain providers are more beneficial for people of either older or younger age. This could also be because certain providers could have been more popular years ago, and are less popular now. So, older people have those providers that are no longer as popular. Also, the second most important variable Race/ethnicity is very interesting, and said that older people have a high chance of being white compared to any other race.
+
+also a high total charge is generally a younger person, which is probably due to the fact that older people have gained more insurance health benefits over time.
+
+Finally, the rf again had the highest accuracy for this model, and was compared to a normal random forest. This seems to show that rf is a somewhat reliable model to use, and to get a high accuracy score.
+
+------------------------------------------------------------------------

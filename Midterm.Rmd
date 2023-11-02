@@ -1,0 +1,109 @@
+---
+title: "Midterm"
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+date: "2023-11-1"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Plot 1
+
+![](fig1.png){width="700"}
+
+## Plot 2
+
+![](fig2.png){width="700"}
+
+## Plot 3
+
+![](fig3.png){width="700"}
+
+## Plot 4
+
+![](fig4.png){width="700"}
+
+## Plot 5
+
+![](fig5.png){width="700"}
+
+## Plot 6
+
+![](fig6.png){width="700"}
+
+## Plot 7
+
+![](fig7.png){width="700"}
+
+## Plot 8
+
+![](fig8.png){width="700"}
+
+## Plot 9
+
+![](fig9.png){width="700"}
+
+## Plot 10
+
+![](fig10.png){width="700"}
+
+## Part 2: Predictive Models
+
+## Predicting High/Low Charge
+
+![](tree1.png){width="350"}
+
+![](tree2.png){width="350"}
+
+## Tuning Parameters
+
+##### Random Forest:
+
+![](rf1.png){width="350"}
+
+##### Rpart:
+
+![](rpart1.png){width="350"}
+
+## Model Comparison
+
+![](compare1.png){width="700"}
+
+Random Forest Accuracy: 0.7924803
+
+## Predicting Age (over or under 50 years old)
+
+![](SecondTree.png){width="350"}
+
+![](SecondTree2.png){width="350"}
+
+## Tuning Parameters
+
+###### Random Forest:
+
+![](rf2.png){width="350"}
+
+##### Rpart:
+
+![](rpart2.png){width="350"}
+
+## Model Comparison
+
+![](compare2.png){width="700"}
+
+Random Forest Accuracy: 0.8172072
+
+## Takeaways
+
+-   The toughest part was trying to knit the entire file
+
+    -   Helped to save data as a csv
+
+    -   Also helped to limit the tuning parameters and number of trees in a RF
+
+-   Provider is a key indicator for predicting age and total charge
+
+-   For this dataset RF is more accurate than Rpart
