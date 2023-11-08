@@ -20,6 +20,8 @@
 - [Midterm Code](midterm_toc.html)
 - [Midterm Slides](Midterm.html)
 - [Assignment 13](assignment13.html)
+- [Assignment 14](assignment14.html)
+
 
 
 =======
