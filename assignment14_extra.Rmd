@@ -1,0 +1,160 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 14 - Extra: Networks of Words"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](assignment14_extra.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, cache = TRUE)
+```
+
+-------
+
+Following [this document](https://www.tidytextmining.com/nasa) to plot a network of words for one of the text datasets.
+```{r}
+
+
+library(jsonlite)
+metadata <- fromJSON("https://data.nasa.gov/data.json")
+names(metadata$dataset)
+
+library(RedditExtractoR) 
+library(tidytext)
+library(ggpubr) 
+library(tidyverse) 
+library(knitr)
+library(lubridate)
+#df = read_csv("reddit_funny.csv")
+
+```
+
+
+
+```{r}
+
+title2 <-  tibble(id = metadata$dataset$identifier, 
+                     title = metadata$dataset$title) %>% 
+  unnest(title)
+
+keyword2 <- tibble(id = metadata$dataset$identifier, 
+                     keyword = metadata$dataset$keyword) %>% 
+  unnest(keyword)
+
+
+title2
+```
+
+
+
+```{r}
+
+keyword2 <- keyword2 %>% 
+  unnest_tokens(word,keyword) %>% 
+  anti_join(get_stopwords()) 
+
+title2 <- title2 %>% 
+  unnest_tokens(word,title) %>% 
+  anti_join(get_stopwords()) 
+
+```
+
+
+```{r}
+
+title2 %>%
+  count(word, sort = TRUE)
+
+```
+
+```{r}
+
+library(widyr)
+
+title_word_pairs <- title2 %>% 
+  pairwise_count(word, id, sort = TRUE, upper = FALSE)
+
+keyword_word_pairs <- keyword2 %>% 
+  pairwise_count(word, id, sort = TRUE, upper = FALSE)
+
+title_word_pairs
+
+
+```
+
+```{r}
+
+library(ggplot2)
+library(igraph)
+library(ggraph)
+
+set.seed(1234)
+title_word_pairs %>%
+  filter(n >= 250) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "cyan4") +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, 
+                 point.padding = unit(0.2, "lines")) +
+  theme_void()
+
+
+```
+
+
+```{r}
+
+set.seed(1234)
+keyword_word_pairs %>%
+  filter(n >= 250) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "cyan4") +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, 
+                 point.padding = unit(0.2, "lines")) +
+  theme_void()
+
+
+
+```
+```{r}
+
+keyword_cors <- keyword2 %>% 
+  group_by(word) %>%
+  filter(n() >= 50) %>%
+  pairwise_cor(word, id, sort = TRUE, upper = FALSE)
+
+keyword_cors
+```
+```{r}
+
+set.seed(1234)
+keyword_cors %>%
+  filter(correlation > .97) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "royalblue") +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE,
+                 point.padding = unit(0.2, "lines")) +
+  theme_void()
+
+
+```
+
