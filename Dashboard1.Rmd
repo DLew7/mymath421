@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+    social: menu
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+#install.packages("plotly")
+library(plotly)
+library(knitr)
+library(DT)
+library(flexdashboard)
+library(tidyverse)
+library(knitr)
+df <- read_csv('vgsales.csv')
+head(df)
+# Create a ggplot object
+df1 = df %>% 
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+labs(title="Length of Stay by Age, and by Sex", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+df1
+df2 = df %>% 
+  filter(Platform=='PS4'|Platform=='XOne') %>% 
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+facet_wrap(~Platform)+labs(title="Length of Stay by Age, and by Sex", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+df2
+
+```
+{.sidebar}
+=======================================================================
+
+Main Tab 1
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+### Column Tab 1
+
+```{r}
+df
+```
+
+
+### Column Tab 2
+
+```{r}
+
+#kable(df)
+
+```
+
+
+### Column Tab 3
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Row 1
+
+```{r}
+df
+```
+
+### Row 2
+
+```{r}
+ggplotly(df1)
+
+```
+
+
+Main Tab 2
+=======================================================================
+
+Column {data-width=500}
+
+#### 3. Example
+
+```{r, echo=TRUE, eval=TRUE}
+library(plotly)
+df <- data.frame(x=c(1, 2, 3, 4), y=c(1, 5, 3, 5), group=c('A', 'A', 'B', 'B'))
+p <- ggplot(data=df, aes(x=x, y=y, colour=group)) + geom_point()
+ggplotly(p)
+```
+
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Row 1
+
+```{r}
+df2
+```
+
+### Row 2
+
+```{r}
+
+ggplotly(df2)
+
+```
+
+M
