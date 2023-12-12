@@ -1,0 +1,260 @@
+---
+title: "Video Games - Combination of Inputs"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    logo: VG1.jpg
+    source_code: embed
+    social: menu
+
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+#install.packages("plotly")
+library(plotly)
+library(knitr)
+library(DT)
+library(flexdashboard)
+library(tidyverse)
+library(knitr)
+df <- read_csv('vgsales2.csv')
+df <- drop_na(df, date)
+
+head(df)
+df$Year <- as.numeric(df$Year)
+df$date <- as.Date(df$date)
+
+df$decade <- case_when(
+  df$Year < 1990 ~ '80s',
+  df$Year < 2000 ~ '90s',
+  df$Year < 2010 ~ '00s',
+  TRUE ~ '10s')
+decade_choice <- unique(df$decade)
+
+
+# Create a ggplot object
+df1 = df %>% 
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+labs(title="Sales by North America and Europe", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+df1
+df2 = df %>% 
+  filter(Platform=='PS4'|Platform=='XOne') %>% 
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+facet_wrap(~Platform)+labs(title="Sales by PS4 and Xbox One", caption="There are more North American sales than European in general")
+df2
+
+```
+{.sidebar}
+=======================================================================
+```{r}
+
+radioButtons(inputId = "genre_input", 
+             label = h2("Select Genre"),
+             choices = c('Sports','Action','Racing','Strategy'),
+             inline = TRUE,
+             selected = 'Sports')
+
+
+sliderInput(inputId = "fare_input",
+            label = h2("Select Global Sales Range"),
+            min = min(df$Global_Sales, na.rm=TRUE),
+            max = max(df$Global_Sales, na.rm=TRUE),
+            value= c(0, 20))
+
+
+selectInput(inputId = "decade_input", 
+            label = h3("Select Decade"),
+            choices = decade_choice, 
+            selected = '20s')
+
+
+```
+
+Sales by Location
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+### Dataset Preview
+
+```{r}
+df
+```
+
+### Dataset Search
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Graph 1
+
+```{r}
+renderPlotly({
+df1 = df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+
+
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+labs(title="Sales by Location")
+ggplotly(df1)})
+
+
+```
+
+### Graph 2
+
+```{r}
+
+renderPlotly({
+df2 <- df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+
+
+  filter(Platform=='PS3'|Platform=='X360') %>% 
+  ggplot()+
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+facet_wrap(~Platform)+labs(title="Platform Sales by Location")
+ggplotly(df2)})
+
+```
+=======================================================================
+
+Sales by Platform
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+### Dataset Preview
+
+```{r}
+df
+```
+
+
+### Dataset Search
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Graph 1
+
+```{r}
+
+renderPlotly({
+df3 = df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+
+
+  filter(Platform=='Wii'|Platform=='PS3'|Platform=='X360') %>% 
+  ggplot()+ 
+  geom_bar(mapping=aes(x=Year, fill=Platform), 
+           position = 'dodge')+labs(title="Platform Sales by Year")
+ggplotly(df3)})
+
+```
+
+### Graph 2
+
+```{r}
+
+renderPlotly({
+
+df4 = df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+
+
+    filter(Platform!='2600',Platform!='GC',Platform!='DC') %>% 
+
+  group_by(Platform) %>% 
+  summarise(avgsales=mean(Global_Sales, na.rm=TRUE)) %>% 
+  ggplot()+ 
+  geom_col(mapping=aes(x=Platform, y=avgsales))+labs(title="Average Sales by Platform")
+ ggplotly(df4)})
+
+
+```
+
+=======================================================================
+
+Sales by Publisher
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+### Dataset Preview
+
+```{r}
+df
+```
+
+
+### Dataset Search
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Graph 1
+
+```{r}
+
+renderPlotly({
+df5 = df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+    filter(Publisher=="Electronic Arts"|Publisher=="Activision"|Publisher=="Nintendo") %>% 
+
+    ggplot()+
+    geom_bar(mapping=aes(x=Year, fill=Publisher))+labs(title="Publisher Sales by Year")
+ggplotly(df5)})
+
+```
+
+### Graph 2
+
+```{r}
+renderPlotly({
+
+df6 = df %>% 
+    filter(Genre==input$genre_input) %>%
+    filter(Global_Sales>input$fare_input[1], Global_Sales<input$fare_input[2]) %>% 
+  filter(decade==input$decade_input) %>%
+
+  filter(Platform!='2600',Platform!='GC',Platform!='GBA', Platform!='N64',Platform!='GB',Platform!='PSP',Platform!='PSV',Platform!='WiiU') %>% 
+  filter(Publisher=="Electronic Arts"|Publisher=="Activision") %>% 
+  ggplot()+
+  geom_bar(mapping=aes(x=Platform, fill=Publisher), position = 'fill')+labs(title="Percentage of Publisher Sales")
+  ggplotly(df6)})
+
+
+
+```

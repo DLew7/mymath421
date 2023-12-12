@@ -1,11 +1,12 @@
 ---
-title: "Untitled"
+title: "Video Games - Flex"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
     source_code: embed
     social: menu
+    logo: VG1.jpg
 ---
 
 ```{r setup, include=FALSE}
@@ -18,46 +19,38 @@ library(DT)
 library(flexdashboard)
 library(tidyverse)
 library(knitr)
-df <- read_csv('vgsales.csv')
+df <- read_csv('vgsales2.csv')
+df$Year <- as.numeric(df$Year)
+df$date <- as.Date(df$date)
 head(df)
 # Create a ggplot object
 df1 = df %>% 
   ggplot()+
-  geom_point(aes(x=NA_Sales, y=EU_Sales))+labs(title="Length of Stay by Age, and by Sex", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+labs(title="Sales by North America and Europe", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
 df1
 df2 = df %>% 
   filter(Platform=='PS4'|Platform=='XOne') %>% 
   ggplot()+
-  geom_point(aes(x=NA_Sales, y=EU_Sales))+facet_wrap(~Platform)+labs(title="Length of Stay by Age, and by Sex", caption="For males, there are more stays over 500 days for people under 40 years old. But there are no major differences between genders")
+  geom_point(aes(x=NA_Sales, y=EU_Sales))+facet_wrap(~Platform)+labs(title="Sales by PS4 and Xbox One", caption="There are more North American sales than European in general")
 df2
 
 ```
 {.sidebar}
 =======================================================================
 
-Main Tab 1
+Sales by Location
 =======================================================================
 
 Column {data-width=500, .tabset}
 -----------------------------------------------------------------------
 
-### Column Tab 1
+### Dataset Preview
 
 ```{r}
 df
 ```
 
-
-### Column Tab 2
-
-```{r}
-
-#kable(df)
-
-```
-
-
-### Column Tab 3
+### Dataset Search
 
 ```{r}
 datatable(df, options = list(
@@ -67,51 +60,114 @@ datatable(df, options = list(
 Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Row 1
+### Graph 1
 
 ```{r}
-df
+df$Year <- as.numeric(df$Year)
+hist(df$Year)
 ```
 
-### Row 2
+### Graph 2
 
 ```{r}
 ggplotly(df1)
 
 ```
-
-
-Main Tab 2
 =======================================================================
 
-Column {data-width=500}
+Sales by Platform
+=======================================================================
 
-#### 3. Example
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
 
-```{r, echo=TRUE, eval=TRUE}
-library(plotly)
-df <- data.frame(x=c(1, 2, 3, 4), y=c(1, 5, 3, 5), group=c('A', 'A', 'B', 'B'))
-p <- ggplot(data=df, aes(x=x, y=y, colour=group)) + geom_point()
-ggplotly(p)
+### Dataset Preview
+
+```{r}
+df
 ```
 
 
+### Dataset Search
 
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
 Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Row 1
-
-```{r}
-df2
-```
-
-### Row 2
+### Graph 1
 
 ```{r}
 
-ggplotly(df2)
+df %>% 
+  filter(Platform=='Wii'|Platform=='PS4'|Platform=='X360') %>% 
+  ggplot()+ 
+  geom_bar(mapping=aes(x=Year, fill=Platform), 
+           position = 'dodge')+labs(title="Console Sales by Year", caption="Wii and Xbox 360 sales go down as PS4 sales go up")
 
 ```
 
-M
+### Graph 2
+
+```{r}
+
+df %>% 
+  filter(Year=='2015') %>% 
+  group_by(Platform) %>% 
+  summarise(avgsales=mean(Global_Sales, na.rm=TRUE)) %>% 
+  ggplot()+ 
+  geom_col(mapping=aes(x=Platform, y=avgsales))+labs(title="Average Sales by Platform",caption="PS4 has the highest average sales out of any console")
+
+
+```
+
+=======================================================================
+
+Sales by Publisher
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+### Dataset Preview
+
+```{r}
+df
+```
+
+
+### Dataset Search
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Graph 1
+
+```{r}
+df %>% 
+    filter(Platform=="PS4"|Platform=="PS3"|Platform=="PS2") %>% 
+    ggplot()+
+    geom_bar(mapping=aes(x=Year, fill=Platform))+labs(title="Count Playstation Console Sales by Year", caption="PS3 overtakes PS2 around 2009 and PS4 overtakes PS3 around 2015")
+
+```
+
+### Graph 2
+
+```{r}
+
+df %>% 
+  filter(Publisher=="Electronic Arts"|Publisher=="Activision") %>% 
+  ggplot()+
+  geom_bar(mapping=aes(x=Platform, fill=Publisher), position = 'fill')+labs(title="Percentage of platforms with games published by EA or Activision", caption="Overall EA is a much more popular publisher than Activision for platforms")
+
+
+
+```

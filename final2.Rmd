@@ -14,6 +14,33 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
+Question 1:
+- [link](BlankDash.html)
 
-file:///C:/Users/student/Documents/GitHub/mymath421/BlankDash.html
+Question 2:
+- [Dash2](Dashboard1.html)
+
+Question 3:
+- https://dlew7.shinyapps.io/Shiny1/
+
+Question 4:
+- https://dlew7.shinyapps.io/selectInput/
+
+Question 5:
+- https://dlew7.shinyapps.io/checkboxGroupInput/
+
+Question 6:
+- https://dlew7.shinyapps.io/sliderInput/
+
+Question 7:
+- https://dlew77.shinyapps.io/radioButtons/
+
+Question 8:
+- https://dlew77.shinyapps.io/dateRangeInput/
+
+Question 9:
+- https://dlew77.shinyapps.io/Combination_of_Inputs/
+
+Question 10:
+- https://dlew77.shinyapps.io/FinalDash/
 

@@ -1,0 +1,12 @@
+name: shiny2
+title: shiny2
+username: dlew7
+account: dlew7
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10736890
+bundleId: 8016643
+url: https://dlew7.shinyapps.io/shiny2/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

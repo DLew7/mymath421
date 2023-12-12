@@ -1,0 +1,12 @@
+name: selectInput
+title: selectInput
+username: dlew7
+account: dlew7
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10777355
+bundleId: 8037705
+url: https://dlew7.shinyapps.io/selectInput/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

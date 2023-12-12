@@ -1,0 +1,12 @@
+name: sliderInput
+title: sliderInput
+username: dlew7
+account: dlew7
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10777412
+bundleId: 8037725
+url: https://dlew7.shinyapps.io/sliderInput/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
